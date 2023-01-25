@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const NonogramSquare = ({ row, column, color = 'P' }) => {
+const NonogramSquare = ({ row, column, color, updateCurrent }) => {
   const colors = {
     W: 'rgb(243,243,244)',
     B: 'rgb(52,49,45)',
@@ -8,20 +8,23 @@ const NonogramSquare = ({ row, column, color = 'P' }) => {
   }
 
   const [selectColor, setSelectColor] = useState(color)
+  if (color !== selectColor) setSelectColor(color)
+  console.log(selectColor, color)
 
   const handleClick = (e) => {
-    if (e.type === 'click') {
-      console.log('left')
+    if (selectColor === 'P') {
+      if (e.type === 'click') {
+        console.log('left')
+        setSelectColor('B')
 
-      if (!(selectColor == 'B')) setSelectColor('B')
-      else setSelectColor('P')
-    } else if (e.type === 'contextmenu') {
-      e.preventDefault()
+        updateCurrent('B', row, column)
+      } else if (e.type === 'contextmenu') {
+        e.preventDefault()
 
-      console.log('right')
-
-      if (!(selectColor == 'W')) setSelectColor('W')
-      else setSelectColor('P')
+        console.log('right')
+        setSelectColor('W')
+        updateCurrent('W', row, column)
+      }
     }
   }
 
