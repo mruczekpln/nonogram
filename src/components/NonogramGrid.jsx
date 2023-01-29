@@ -37,57 +37,42 @@ const getArrayColumns = (array) => {
 
   return result
 }
-
-const NonogramGrid = ({ solution }) => {
-  const [current, setCurrent] = useState([...new Array(5)].map(() => [...new Array(5)].map(() => 'P')))
-  const [random, setRandom] = useState(false)
-
-  const updateCurrent = (color, i, j) => {
-    let previous = current
-
-    previous = previous.map((row, index) =>
-      row.map((column, idx) => {
-        if (index === i && idx === j) {
-          console.log(`switched i: ${i} j: ${j} index: ${index} ${idx} color: ${color}`)
-          return color
-        }
-
-        return column
-      })
-    )
-
-    console.log('update')
-    setCurrent(previous)
-  }
-
-  const checkIfSolved = () => {
-    if (JSON.stringify(current) === JSON.stringify(solution)) {
-      console.log('you won')
-    }
-  }
-
-  const generateRandomSolvedSquare = () => {
-    const random = Math.random() * 25
-    const i = Math.floor(random / 5 - 1) < 0 ? 0 : Math.floor(random / 5 - 1)
-    const j = Math.floor(random % 5)
-
-    console.log(i, j)
-    const color = solution[i][j]
-
-    console.log('generate')
-    updateCurrent(color, i, j)
-  }
+const NonogramGrid = ({ start, solution, setSolved, lives, setLives }) => {
+  const [nonogram, setNonogram] = useState({ current: start, lives: lives })
 
   useEffect(() => {
-    if (!random) setRandom(generateRandomSolvedSquare())
+    console.count('NonogramGrid render')
+
+    console.table(solution)
+    console.table(nonogram.current)
   }, [])
 
   useEffect(() => {
-    console.table(solution)
-    console.table(current)
+    console.count('lives --')
+    setLives(nonogram.lives)
+  }, [nonogram.lives])
 
+  useEffect(() => {
+    console.count('puzzle move')
     checkIfSolved()
-  }, [current])
+
+    console.table(nonogram.current)
+  }, [nonogram.current])
+
+  const checkIfSolved = () => JSON.stringify(nonogram.current) === JSON.stringify(solution) && setSolved(true)
+  const checkForMistake = (color, i, j) => color !== solution[i][j]
+
+  const updateCurrent = (color, i, j) => {
+    let previous = nonogram.current
+
+    if (checkForMistake(color, i, j)) {
+      previous[i][j] = solution[i][j]
+      setNonogram((prev) => ({ current: previous, lives: prev.lives - 1 }))
+    } else {
+      previous[i][j] = color
+      setNonogram((prev) => ({ current: previous, lives: prev.lives }))
+    }
+  }
 
   return (
     <div
@@ -121,7 +106,7 @@ const NonogramGrid = ({ solution }) => {
         })}
       </div>
       <div className='col-start-2 col-end-6 row-start-2 row-end-6 grid aspect-square w-[500px] grid-cols-5 grid-rows-5 gap-1 overflow-hidden rounded-xl border-4 border-bg2 bg-bg2'>
-        {current.map((row, idx) =>
+        {nonogram.current.map((row, idx) =>
           row.map((col, index) => (
             <NonogramSquare
               key={[idx, index]}

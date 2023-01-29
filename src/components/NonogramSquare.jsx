@@ -9,7 +9,6 @@ const NonogramSquare = ({ row, column, color, updateCurrent }) => {
 
   const [selectColor, setSelectColor] = useState(color)
   if (color !== selectColor) setSelectColor(color)
-  console.log(selectColor, color)
 
   const handleClick = (e) => {
     if (selectColor === 'P') {
